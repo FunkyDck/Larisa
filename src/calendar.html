@@ -1,0 +1,78 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqwidgets/15.0.0/jqwidgets/styles/jqx.base.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqwidgets/15.0.0/jqwidgets/jqx-all.min.js"></script>
+    <title>Larisa</title>
+    <style>
+        html, body {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class='default'>
+    <div id="scheduler"></div>
+
+    <script>
+        const state = {/*CALENDAR_STATE*/};
+
+        $(document).ready(function () {
+            // prepare the data
+            var source = {
+                dataType: "array",
+                dataFields: [
+                    { name: 'startTime', type: 'date' },
+                    { name: 'endTime', type: 'date' },
+                    { name: 'title', type: 'string' },
+                ],
+                id: 'id',
+                localData: state.bookings.map((booking) => {
+                    console.log(booking.startTime, {
+                        startTime: new Date(booking.startTime),
+                        endTime: new Date(booking.endTime),
+                        subject: `by @${booking.login}`,
+                    })
+                    return {
+                        startTime: new Date(booking.startTime),
+                        endTime: new Date(booking.endTime),
+                        title: `by @${booking.login}`,
+                    }
+                })
+            };
+
+            var adapter = new $.jqx.dataAdapter(source);
+
+            $("#scheduler").jqxScheduler({
+                date: new $.jqx.date(),
+                width: '99vw',
+                height: '99vh',
+                source: adapter,
+                view: 'weekView',
+                showLegend: false,
+                ready: function () {
+                    // $("#scheduler").jqxScheduler('ensureAppointmentVisible', 'id1');
+                },
+                resources: {
+                    colorScheme: "scheme05",
+                    dataField: "calendar",
+                    source: new $.jqx.dataAdapter(source)
+                },
+                appointmentDataFields: {
+                    from: "startTime",
+                    to: "endTime",
+                    id: "startTime",
+                    subject: "title",
+                },
+                views: [
+                    'dayView',
+                    'weekView',
+                    'monthView'
+                ]
+            });
+        });
+    </script>
+</body>
+</html>
