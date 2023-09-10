@@ -1,3 +1,5 @@
+import dayjs from "dayjs"
+
 export function createState() {
     return {
         ready: true,
@@ -30,4 +32,13 @@ export function cancel(state, booking) {
 
 export function getBookings(state) {
     return state.bookings;
+}
+
+export function cleanup(state, olderThan) {
+    return {
+        ...state,
+        bookings: state.bookings.filter((booking) => {
+            return dayjs(booking.startTime).isAfter(olderThan)
+        })
+    }
 }

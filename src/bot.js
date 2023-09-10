@@ -18,12 +18,35 @@ export function startBot(localSession) {
 
         const booking = createBookingFromMessage(ctx.message)
 
+        let result = "Что-то пошло не так..."
+
         if (booking) {
             state.book(ctx.session, booking);
-            ctx.reply("Застолбила", { reply_to_message_id: ctx.message.message_id });
+            result = "Застолбила";
         } else {
-            ctx.reply("Извините, я не поняла. Попробуйте как-то так: '01.02 16-18' или '03.04 19:30 - 21:30'")
+            result = "Извините, я не поняла. Попробуйте как-то так: '01.02 16-18' или '03.04 19:30 - 21:30'";
         }
+
+        ctx.reply(result, { reply_to_message_id: ctx.message.message_id });
+    });
+
+    bot.command("cancel", async (ctx) => {
+        if (!ctx.session.ready) {
+            Object.assign(ctx.session, state.createState())
+        }
+
+        const booking = createBookingFromMessage(ctx.message)
+
+        let result = "Что-то пошло не так..."
+
+        if (booking) {
+            state.book(ctx.session, booking);
+            result = "Отменила";
+        } else {
+            result = "Извините, я не поняла. Попробуйте как-то так: '01.02 16-18' или '03.04 19:30 - 21:30'";
+        }
+
+        ctx.reply(result, { reply_to_message_id: ctx.message.message_id });
     });
 
     bot.command("give_calendar_link", (ctx) => {
@@ -36,7 +59,6 @@ export function startBot(localSession) {
     process.once('SIGINT', () => bot.stop('SIGINT'));
     process.once('SIGTERM', () => bot.stop('SIGTERM'));
 }
-
 
 
 function createBookingFromMessage(message) {
@@ -68,9 +90,14 @@ function fuzzyParseTime(date, time) {
 
     const [day, month] = date.split(/[-. ]/)
 
+    let year = currentTime.year()
+    if (currentTime.month > month) {
+        year += 1
+    }
+
     // Replicates ISO8601
     const timestampStr = [
-        currentTime.year(), "-",
+        year, "-",
         month, "-",
         day,
         "T",
