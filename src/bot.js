@@ -21,8 +21,16 @@ export function startBot(localSession) {
         let result = "Что-то пошло не так..."
 
         if (booking) {
-            state.book(ctx.session, booking);
-            result = "Застолбила";
+            const now = dayjs();
+
+            if (dayjs(booking.startTime).isAfter(now.add(1, 'month'))) {
+                result = "Дальше чем на месяц вперёд не занимаю"
+            } else if (dayjs(booking.endTime).isBefore(now)) {
+                result = "В прошлое не занимаю";
+            } else {
+                state.book(ctx.session, booking);
+                result = "Застолбила";
+            }
         } else {
             result = "Извините, я не поняла. Попробуйте как-то так: '01.02 16-18' или '03.04 19:30 - 21:30'";
         }
@@ -40,8 +48,10 @@ export function startBot(localSession) {
         let result = "Что-то пошло не так..."
 
         if (booking) {
-            state.book(ctx.session, booking);
-            result = "Отменила";
+            const cancelled = state.cancel(ctx.session, booking);
+            result = cancelled
+                ? "Отменила"
+                : "Не нашла такую бронь у вас";
         } else {
             result = "Извините, я не поняла. Попробуйте как-то так: '01.02 16-18' или '03.04 19:30 - 21:30'";
         }
@@ -91,7 +101,7 @@ function fuzzyParseTime(date, time) {
     const [day, month] = date.split(/[-. ]/)
 
     let year = currentTime.year()
-    if (currentTime.month > month) {
+    if ((currentTime.month() + 1)> month) {
         year += 1
     }
 

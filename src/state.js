@@ -18,8 +18,7 @@ export function book(state, booking) {
 export function cancel(state, booking) {
     const index = state.bookings.find((candidate) => {
         return candidate.login == booking.login &&
-            candidate.startTime == booking.startTime &&
-            candidate.endTime == booking.endTime
+            candidate.startTime == booking.startTime
     })
 
     if (index !== -1) {
