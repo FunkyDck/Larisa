@@ -21,12 +21,10 @@ export function startBot(localSession) {
         let result = "Что-то пошло не так..."
 
         if (booking) {
-            const now = dayjs();
+            const error = state.checkBookingForErrors(ctx.session, booking);
 
-            if (dayjs(booking.startTime).isAfter(now.add(1, 'month'))) {
-                result = "Дальше чем на месяц вперёд не занимаю"
-            } else if (dayjs(booking.endTime).isBefore(now)) {
-                result = "В прошлое не занимаю";
+            if (error) {
+                result = error;
             } else {
                 state.book(ctx.session, booking);
                 result = "Застолбила";
