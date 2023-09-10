@@ -71,16 +71,20 @@ export function startBot(localSession) {
 }
 
 
-function createBookingFromMessage(message) {
+export function createBookingFromMessage(
+    message,
+    getCurrentTime = dayjs,
+) {
     const match = message.text.match(/(\d+\s*\.\s*\d+).*?\b(\d+(?::\d+)?)\s*-\s*(\d+(?::\d+)?)/)
-
+    
     if (match == null) {
         return undefined;
     }
-
+    
     const [_, date, startTimeStr, endTimeStr] = match;
-    const startTime = fuzzyParseTime(date, startTimeStr);
-    const endTime = fuzzyParseTime(date, endTimeStr);
+    const currentTime = getCurrentTime();
+    const startTime = fuzzyParseTime(date, startTimeStr, currentTime);
+    const endTime = fuzzyParseTime(date, endTimeStr, currentTime);
 
     if (!startTime.isValid() || !endTime.isValid()) {
         return undefined;
@@ -95,9 +99,7 @@ function createBookingFromMessage(message) {
 }
 
 
-function fuzzyParseTime(date, time) {
-    const currentTime = dayjs();
-
+export function fuzzyParseTime(date, time, currentTime) {
     const [day, month] = date.split(/[-. ]/)
 
     let year = currentTime.year()
